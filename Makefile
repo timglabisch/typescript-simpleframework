@@ -1,4 +1,5 @@
 run:
-	rm -rf build
-	tsc -p .
-	node build/main.js
+	./node_modules/.bin/webpack-cli
+
+watch:
+	./node_modules/.bin/webpack-cli --watch --progress

@@ -12,7 +12,8 @@
     "noEmitOnError": true,
     "outDir": "build",
     "module": "commonjs",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "downlevelIteration": true
   },
   "include": [
     "src/**/*",
