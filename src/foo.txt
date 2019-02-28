@@ -1,0 +1,35 @@
+
+interface ControllerAnnotationInterface {
+    name: string
+}
+
+interface ServiceAnnotationInterface {
+    name : string
+}
+
+function controller(args : ControllerAnnotationInterface) {
+
+    return function<T extends { new(...args: any[]): {} }>(target : T) {
+
+        //container.bind<ControllerAnnotationInterface>(Symbol("ControllerAnnotationInterface")).to()
+
+        console.log(target.name);
+
+        return class extends target {
+
+        }
+    };
+
+}
+
+function service(args : ServiceAnnotationInterface) {
+
+    return function<T extends { new(...args: any[]): {} }>(target : T) {
+
+        // container.bind<ControllerAnnotationInterface>(Symbol("ControllerAnnotationInterface"))..to()
+        return class extends target {
+
+        }
+    };
+
+}

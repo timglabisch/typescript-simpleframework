@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["ES2015"],
+    "target": "ES5",
+    "declaration": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "noEmitOnError": true,
+    "outDir": "build",
+    "module": "commonjs",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/**/*",
+    "node_modules/**/*",
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}
