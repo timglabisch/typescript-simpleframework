@@ -1,5 +1,6 @@
 import {Container} from "inversify";
 import {buildProviderModule} from "inversify-binding-decorators";
+import {Controller} from "../controller/Controller";
 
 declare var console: any;
 declare var window: Window;
@@ -42,7 +43,8 @@ export class App {
 
             let controllerDiKey = this.routingMap.get(controllerName);
 
-            this.container.get(controllerDiKey);
+            let controllerInstance = this.container.get<Controller>(controllerDiKey);
+            controllerInstance.mount(controllerNode);
         }
     }
 
