@@ -5,7 +5,7 @@ abstract class Controller {
     public mount(node : Element) {
     }
 
-    public unmount(node : Element) {
+    public unmount() {
     }
 }
 

@@ -5,11 +5,15 @@ import {Controller} from "../controller/Controller";
 declare var console: any;
 declare var window: Window;
 
+
 export class App {
 
-    private container : Container = new Container();
+    private container: Container = new Container();
+    private routingMap: Map<string, any> = new Map();
+    private controllerMap: Map<Element, { controller: Controller, found: number }> = new Map();
+    private foundRounds: number = 1;
 
-    private routingMap : Map<string, any> = new Map();
+    // todo, managed controllers sammeln...
 
     public run() {
 
@@ -32,6 +36,18 @@ export class App {
     private onDomLoaded() {
         console.log("dom loaded");
 
+        this.checkControllers();
+
+        const observer = new MutationObserver(this.onBodyChanged.bind(this));
+        observer.observe(document.body, {childList: true, subtree: true});
+    }
+
+    private onBodyChanged() {
+        this.checkControllers();
+    }
+
+    private checkControllers() {
+        this.foundRounds++;
         let controllerNodes = document.querySelectorAll(".controller[data-controller]");
 
         for (var controllerNode of controllerNodes) {
@@ -41,11 +57,33 @@ export class App {
                 continue;
             }
 
+            let entry = this.controllerMap.get(controllerNode);
+
+            if (entry !== undefined) {
+                entry.found = this.foundRounds;
+                continue;
+            }
+
             let controllerDiKey = this.routingMap.get(controllerName);
 
             let controllerInstance = this.container.get<Controller>(controllerDiKey);
-            controllerInstance.mount(controllerNode);
+
+            this.controllerMap.set(controllerNode, {controller: controllerInstance, found: 0});
+        }
+
+        for (const [key, mapEntry] of this.controllerMap) {
+            if (mapEntry.found === 0) {
+                mapEntry.controller.mount(key);
+                continue;
+            }
+
+            if (mapEntry.found !== this.foundRounds) {
+                mapEntry.controller.unmount();
+                this.controllerMap.delete(key);
+                continue;
+            }
+
+            // noting to do, node is in sync.
         }
     }
-
 }
