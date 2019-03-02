@@ -73,6 +73,8 @@ export class App {
 
         for (const [key, mapEntry] of this.controllerMap) {
             if (mapEntry.found === 0) {
+                mapEntry.found = this.foundRounds;
+                console.log("found is 0, mount ...");
                 mapEntry.controller.mount(key);
                 continue;
             }
