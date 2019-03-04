@@ -14,7 +14,6 @@ export default class FooController extends Controller{
 
     constructor(@inject(XService) xservice: XService) {
         super();
-        console.log(FooController.counter++);
     }
 
     mount(node: Element) {

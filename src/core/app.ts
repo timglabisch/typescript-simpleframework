@@ -24,8 +24,6 @@ export class App {
             Reflect
         );
 
-        console.log(routingMetadata);
-
         for (var metaData of routingMetadata) {
             this.routingMap.set(metaData.routeArgs.name, metaData.target);
         }
@@ -34,7 +32,6 @@ export class App {
     }
 
     private onDomLoaded() {
-        console.log("dom loaded");
 
         this.checkControllers();
 
@@ -74,7 +71,6 @@ export class App {
         for (const [key, mapEntry] of this.controllerMap) {
             if (mapEntry.found === 0) {
                 mapEntry.found = this.foundRounds;
-                console.log("found is 0, mount ...");
                 mapEntry.controller.mount(key);
                 continue;
             }
