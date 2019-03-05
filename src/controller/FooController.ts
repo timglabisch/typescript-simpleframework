@@ -6,54 +6,47 @@ import {Controller} from "./Controller";
 declare var console: any;
 
 @controller({name: "foo"})
-export default class FooController extends Controller{
+export default class FooController extends Controller {
 
-    private level : number;
-    private node : Element;
+    private level: number = 0;
+    private node: Element;
     static counter: number = 0;
 
     constructor(@inject(XService) xservice: XService) {
         super();
     }
 
-    mount(node: Element) {
-
-        this.level = Number(node.getAttribute('data-level') || 0);
-
-        this.node = node;
-        console.log("mount foo with ", node);
-
-        node.addEventListener('click', this.onClick.bind(this));
+    mount() {
+        this.level = Number(this.env.firstNativeElement()!.getAttribute('data-level') || 0);
+        this.env.on('click', this.onClick.bind(this));
     }
 
-
-    unmount() {
-        super.unmount();
-        console.log("unmount");
-    }
-
-    onClick(event : any) {
-
+    onClick(event: any) {
+        console.log("append node");
         event.stopPropagation();
         event.preventDefault();
 
-        let child = document.createElement("div");
-        child.innerHTML = `
+        let child = this.env.create("div", `
             <div style="padding-left: 20px">
                 <span class="sub">
-                    <span style="position: absolute; margin-left: -10px;">-</span>
+                    <span class="removeTrigger" style="position: absolute; margin-left: -20px; display:inline-block; background-color: grey">[=]</span>
                     <div class="controller" data-controller="foo" data-level="${this.level + 1}">sub ${this.level}</div>
                 </span>
-            </div>`;
-        child.querySelector('span')!.addEventListener('click', this.removeNode.bind(this));
+            </div>`
+        );
 
-        this.node.appendChild(child);
+        //child.querySelector(".removeTrigger")!.addEventListener('click', this.removeNode.bind(this));
+        child.findOne('.removeTrigger')!.on('click', this.removeNode.bind(this));
+
+        this.env.append(child);
+
     }
 
-    removeNode(event : any) {
+    removeNode(event: any) {
+        console.log("remove node");
         event.stopPropagation();
         event.preventDefault();
 
-        this.node.querySelector(".sub")!.remove();
+        this.env.findOne(".sub")!.remove();
     }
 }

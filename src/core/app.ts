@@ -1,6 +1,6 @@
 import {Container} from "inversify";
 import {buildProviderModule} from "inversify-binding-decorators";
-import {Controller} from "../controller/Controller";
+import {Controller, DomEnv} from "../controller/Controller";
 
 declare var console: any;
 declare var window: Window;
@@ -71,7 +71,8 @@ export class App {
         for (const [key, mapEntry] of this.controllerMap) {
             if (mapEntry.found === 0) {
                 mapEntry.found = this.foundRounds;
-                mapEntry.controller.mount(key);
+                mapEntry.controller.env = new DomEnv([key]);
+                mapEntry.controller.mount();
                 continue;
             }
 
