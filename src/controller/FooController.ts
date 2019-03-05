@@ -35,8 +35,12 @@ export default class FooController extends Controller {
             </div>`
         );
 
-        //child.querySelector(".removeTrigger")!.addEventListener('click', this.removeNode.bind(this));
-        child.findOne('.removeTrigger')!.on('click', this.removeNode.bind(this));
+        //child.findOne('.removeTrigger')!.on('click', this.removeNode.bind(this));
+        child.onDelegated('click', 'body .removeTrigger', (e : Event) => {
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            console.log("remove trigger");
+        });
 
         this.env.append(child);
 

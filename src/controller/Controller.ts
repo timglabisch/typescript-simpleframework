@@ -19,18 +19,45 @@ class DomEnv {
         return this.nativeElements.length;
     }
 
-    create<K extends keyof HTMLElementTagNameMap>(tagName: K, html : string) {
+    create<K extends keyof HTMLElementTagNameMap>(tagName: K, html: string) {
         const tag = document.createElement(tagName);
         tag.innerHTML = html;
         return new DomEnv([tag], this);
     }
 
-    append(dom : DomEnv) {
+    append(dom: DomEnv) {
         for (var nativeElement of this.nativeElements) {
             for (var inativeEleent of dom.nativeElements) {
                 nativeElement.appendChild(inativeEleent);
             }
         }
+    }
+
+    onDelegated(type: string, query: string, listener: any, gc: boolean = true): DomEnv {
+
+        for (var nativeElement of this.nativeElements) {
+
+            const rawListener = (evt: any) => {
+
+                if (!evt.target) {
+                    return;
+                }
+
+                if (!evt.target.matches(query)) {
+                    return;
+                }
+
+                listener(evt);
+            };
+
+            nativeElement.addEventListener(type, rawListener);
+
+            if (gc) {
+                this.saveListenerToClear(nativeElement, type, rawListener);
+            }
+        }
+
+        return this;
     }
 
     on(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions, gc: boolean = true): DomEnv {
