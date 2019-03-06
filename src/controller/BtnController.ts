@@ -1,7 +1,7 @@
 import {controller, onDelegated} from "../decorators";
 import {inject} from "inversify";
 import XService from "../service/xservice";
-import {Controller} from "./Controller";
+import {Controller, DomEnv} from "./Controller";
 
 declare var console: any;
 
@@ -13,12 +13,12 @@ export default class BtnController extends Controller {
 
     @onDelegated('click', '.btnA')
     onClickA() {
-        this.env.find('.btnA').firstNativeElement()!.innerHTML = "click " + this.clicksA++;
+        this.env.find('.btnA').html("click " + this.clicksA++);
     }
 
     @onDelegated('click', '.btnB')
-    onClickB() {
-        this.env.find('.btnB').firstNativeElement()!.innerHTML = "click " + this.clicksB++;
+    onClickB(el : DomEnv) {
+        el.html("click " + this.clicksB++)
     }
 
     mount() {

@@ -78,7 +78,10 @@ export class App {
                 const delegations = Reflect.getMetadata("tg:on_delegate", mapEntry.controllerKey) || [];
                 for (const delegation of delegations) {
                     const c : any = mapEntry.controller;
-                    mapEntry.controller.env.onDelegated(delegation.type, delegation.query, c[delegation.propertyKey].bind(c));
+                    mapEntry.controller.env.onDelegated(delegation.type, delegation.query, (event : Event) => {
+                        const f = c[delegation.propertyKey].bind(c);
+                        f(new DomEnv([event.target as Element], c.env), event);
+                    });
                 }
 
                 mapEntry.controller.mount();

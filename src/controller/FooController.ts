@@ -1,7 +1,7 @@
-import {controller} from "../decorators";
+import {controller, onDelegated} from "../decorators";
 import {inject} from "inversify";
 import XService from "../service/xservice";
-import {Controller} from "./Controller";
+import {Controller, DomEnv} from "./Controller";
 
 declare var console: any;
 
@@ -22,6 +22,13 @@ export default class FooController extends Controller {
     }
 
     onClick(event: any) {
+
+        if (event.target.matches(".removeTrigger")) {
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+
         console.log("append node");
         event.stopPropagation();
         event.preventDefault();
@@ -35,22 +42,18 @@ export default class FooController extends Controller {
             </div>`
         );
 
-        //child.findOne('.removeTrigger')!.on('click', this.removeNode.bind(this));
-        child.onDelegated('click', 'body .removeTrigger', (e : Event) => {
-            e.stopImmediatePropagation();
-            e.stopPropagation();
-            console.log("remove trigger");
-        });
 
         this.env.append(child);
 
     }
 
-    removeNode(event: any) {
+    @onDelegated("click", ".removeTrigger")
+    removeNode(el : DomEnv, event : Event) {
         console.log("remove node");
         event.stopPropagation();
         event.preventDefault();
 
+        console.log(this.env.findOne(".sub"));
         this.env.findOne(".sub")!.remove();
     }
 }

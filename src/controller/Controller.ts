@@ -93,6 +93,12 @@ class DomEnv {
         return new DomEnv(elements, this);
     }
 
+    html(html : string) {
+        for (var nativeElement of this.nativeElements) {
+            nativeElement.innerHTML = html;
+        }
+    }
+
     findOne(query: string): DomEnv {
         for (var nativeElement of this.nativeElements) {
 
