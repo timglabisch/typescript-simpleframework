@@ -19,7 +19,7 @@ const controller = (routeArgs : RouteArgs) => {
 
         // provide metadata
         const currentMetadata = {
-            constraint: (bind: interfaces.Bind, bindTarget: any) => bind(target).to(bindTarget),
+            constraint: (bind: interfaces.Bind, bindTarget: any) => bind(target.prototype).to(bindTarget),
             implementationType: target
         };
 
@@ -34,10 +34,11 @@ const controller = (routeArgs : RouteArgs) => {
             Reflect
         );
 
+
         // routing
         const currentRouting = {
             routeArgs,
-            target
+            target: target.prototype,
         };
 
         const previousRouting = Reflect.getMetadata(
@@ -57,5 +58,18 @@ const controller = (routeArgs : RouteArgs) => {
 
 };
 
+const onDelegated = (type : string, query : string) => {
+    return function (target : any, propertyKey: string, descriptor: PropertyDescriptor) {
+        // console.log(target, propertyKey, descriptor);
 
-export {service, controller, RouteArgs}
+        Reflect.defineMetadata(
+            "tg:on_delegate",
+            [{ type, query, target, propertyKey  }, ... Reflect.getMetadata("tg:on_delegate", target) || []],
+            target
+        );
+
+    }
+}
+
+
+export {service, controller, RouteArgs, onDelegated}

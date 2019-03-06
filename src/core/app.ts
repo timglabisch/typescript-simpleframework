@@ -10,7 +10,7 @@ export class App {
 
     private container: Container = new Container();
     private routingMap: Map<string, any> = new Map();
-    private controllerMap: Map<Element, { controller: Controller, found: number }> = new Map();
+    private controllerMap: Map<Element, { controller: Controller, controllerKey: any, found: number }> = new Map();
     private foundRounds: number = 1;
 
     // todo, managed controllers sammeln...
@@ -65,14 +65,25 @@ export class App {
 
             let controllerInstance = this.container.get<Controller>(controllerDiKey);
 
-            this.controllerMap.set(controllerNode, {controller: controllerInstance, found: 0});
+            this.controllerMap.set(controllerNode, {controller: controllerInstance, controllerKey: controllerDiKey, found: 0});
         }
 
         for (const [key, mapEntry] of this.controllerMap) {
             if (mapEntry.found === 0) {
                 mapEntry.found = this.foundRounds;
                 mapEntry.controller.env = new DomEnv([key]);
+                console.log( mapEntry);
+
+                // register  delegations
+                const delegations = Reflect.getMetadata("tg:on_delegate", mapEntry.controllerKey) || [];
+                for (const delegation of delegations) {
+                    const c : any = mapEntry.controller;
+                    mapEntry.controller.env.onDelegated(delegation.type, delegation.query, c[delegation.propertyKey].bind(c));
+                }
+
                 mapEntry.controller.mount();
+
+
                 continue;
             }
 
