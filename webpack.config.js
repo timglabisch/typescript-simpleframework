@@ -1,12 +1,17 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-    entry: './src/index.ts',
+    plugins: [
+        new webpack.WatchIgnorePlugin([
+            /\.js$/,
+            /\.d\.ts$/
+        ])
+    ],
     watchOptions: {
-        aggregateTimeout: 300,
-        ignored: /node_modules/,
-        poll: 300
+        ignored: ['build/*', 'node_modules', "dist", ".idea"]
     },
+    entry: './src/index.ts',
     module: {
         rules: [
             {
