@@ -1,16 +1,26 @@
-import {controller, onDelegated} from "../decorators";
-import {inject} from "inversify";
-import XService from "../service/xservice";
-import {Controller, DomEnv} from "./Controller";
+import {controller} from "../decorators";
+import {Controller} from "./Controller";
 import * as React from 'react'
 
 declare var console: any;
 
 @controller({name: "jsx"})
-export default class BtnController extends Controller {
+export default class JSXController extends Controller {
 
-    mount() {
-        let dom = <div>foooo</div>;
+    clicks = 1;
+
+    addOne() {
+        this.clicks++;
+        console.log("click", this);
+        this.reRender();
+    }
+
+    render() {
+        return <div>
+            <button onClick={this.addOne.bind(this)}>
+                clicks { this.clicks }
+            </button>
+        </div>
     }
 
 }

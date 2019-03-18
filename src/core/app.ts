@@ -86,6 +86,11 @@ export class App {
 
                 mapEntry.controller.mount();
 
+                let jsx = mapEntry.controller.render();
+                if (jsx) {
+                    mapEntry.controller.env.jsx(jsx);
+                }
+
 
                 continue;
             }

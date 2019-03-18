@@ -1,4 +1,6 @@
 import {injectable} from "inversify";
+import * as ReactDOM from "react-dom";
+import * as React from "react";
 
 class DomEnv {
 
@@ -99,6 +101,22 @@ class DomEnv {
         }
     }
 
+    jsx(el : JSX.Element) {
+
+        /*
+        class JSXEL extends React.Component {
+            constructor(props : any) {
+                super(props);
+            }
+
+            render() {
+                return el;
+            }
+        }*/
+
+        ReactDOM.render(el, this.firstNativeElement())
+    }
+
     findOne(query: string): DomEnv {
         for (var nativeElement of this.nativeElements) {
 
@@ -136,6 +154,17 @@ abstract class Controller {
 
     public mount() {
 
+    }
+
+    reRender() {
+        let jsx = this.render();
+        if (jsx) {
+            this.env.jsx(jsx);
+        }
+    }
+
+    public render(): null | JSX.Element {
+        return null;
     }
 
     public unmount() {
