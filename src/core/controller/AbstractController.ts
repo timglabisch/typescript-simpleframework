@@ -147,8 +147,10 @@ class DomEnv {
     }
 }
 
+type renderResult = void | JSX.Element | Element;
+
 @injectable()
-abstract class Controller {
+abstract class AbstractController {
 
     env: DomEnv;
 
@@ -157,14 +159,14 @@ abstract class Controller {
     }
 
     reRender() {
-        let jsx = this.render();
-        if (jsx) {
+        let jsx : any = this.render();
+        if (jsx) { // todo
             this.env.jsx(jsx);
         }
     }
 
-    public render(): null | JSX.Element {
-        return null;
+    public render(): renderResult | Promise<renderResult> | AsyncIterableIterator<renderResult> {
+
     }
 
     public unmount() {
@@ -172,4 +174,4 @@ abstract class Controller {
     }
 }
 
-export {Controller, DomEnv}
+export {AbstractController, DomEnv}

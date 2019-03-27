@@ -1,6 +1,6 @@
 import {Container} from "inversify";
 import {buildProviderModule} from "inversify-binding-decorators";
-import {Controller, DomEnv} from "../controller/Controller";
+import {AbstractController, DomEnv} from "./controller/AbstractController";
 
 declare var console: any;
 declare var window: Window;
@@ -10,7 +10,7 @@ export class App {
 
     private container: Container = new Container();
     private routingMap: Map<string, any> = new Map();
-    private controllerMap: Map<Element, { controller: Controller, controllerKey: any, found: number }> = new Map();
+    private controllerMap: Map<Element, { controller: AbstractController, controllerKey: any, found: number }> = new Map();
     private foundRounds: number = 1;
 
     // todo, managed controllers sammeln...
@@ -63,7 +63,7 @@ export class App {
 
             let controllerDiKey = this.routingMap.get(controllerName);
 
-            let controllerInstance = this.container.get<Controller>(controllerDiKey);
+            let controllerInstance = this.container.get<AbstractController>(controllerDiKey);
 
             this.controllerMap.set(controllerNode, {controller: controllerInstance, controllerKey: controllerDiKey, found: 0});
         }
@@ -86,9 +86,26 @@ export class App {
 
                 mapEntry.controller.mount();
 
-                let jsx = mapEntry.controller.render();
-                if (jsx) {
-                    mapEntry.controller.env.jsx(jsx);
+                const handleResponse = (response : any) => {
+                    if (!response) {
+                        return;
+                    }
+
+                    mapEntry.controller.env.jsx(response as JSX.Element);
+                };
+
+                let response : any = mapEntry.controller.render();
+                if (!response) {
+                    console.log("response is undefined");
+                } else if (response.hasOwnProperty('next')) {
+                    (async function () {
+                        for await (const item of response) {
+                            handleResponse(item);
+                        }
+                    })();
+
+                } else {
+                    handleResponse(response);
                 }
 
 

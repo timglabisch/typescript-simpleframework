@@ -1,12 +1,12 @@
 import {controller, onDelegated} from "../decorators";
 import {inject} from "inversify";
 import XService from "../service/xservice";
-import {Controller, DomEnv} from "./Controller";
+import {AbstractController, DomEnv} from "../core/controller/AbstractController";
 
 declare var console: any;
 
 @controller({name: "btn"})
-export default class BtnController extends Controller {
+export default class extends AbstractController {
 
     protected clicksA: number = 0;
     protected clicksB: number = 0;

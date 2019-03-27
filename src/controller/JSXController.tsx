@@ -1,11 +1,11 @@
 import {controller} from "../decorators";
-import {Controller} from "./Controller";
 import * as React from 'react'
+import {AbstractController} from "../core/controller/AbstractController";
 
 declare var console: any;
 
 @controller({name: "jsx"})
-export default class JSXController extends Controller {
+export default class extends AbstractController {
 
     clicks = 1;
 

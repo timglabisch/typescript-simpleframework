@@ -1,12 +1,12 @@
 import {controller, onDelegated} from "../decorators";
 import {inject} from "inversify";
 import XService from "../service/xservice";
-import {Controller, DomEnv} from "./Controller";
+import {AbstractController, DomEnv} from "../core/controller/AbstractController";
 
 declare var console: any;
 
 @controller({name: "foo"})
-export default class FooController extends Controller {
+export default class extends AbstractController {
 
     private level: number = 0;
     private node: Element;
