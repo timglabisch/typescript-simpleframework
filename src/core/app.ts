@@ -1,7 +1,7 @@
 import {AbstractController, DomEnv} from "./controller/AbstractController";
 import AbstractJSXController from "./controller/AbstractJSXController";
-import * as ReactDOM from "react-dom";
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 
 declare var console: any;
 declare var window: Window;
@@ -10,7 +10,7 @@ declare var window: Window;
 export class App {
 
     private routingMap: Map<string, any> = new Map();
-    private controllerMap: Map<Element, { controller: AbstractController | AbstractJSXController<any>, controllerKey: any, found: number }> = new Map();
+    private controllerMap: Map<Element, { controller: AbstractController | null, controllerKey: any, found: number }> = new Map();
     private foundRounds: number = 1;
 
     // todo, managed controllers sammeln...
@@ -67,66 +67,84 @@ export class App {
             }
 
             if (controllerDiKey instanceof AbstractJSXController) {
-                ReactDOM.render(React.createElement(controllerDiKey.constructor as any), controllerNode);
+                this.controllerMap.set(controllerNode, {controller: null, controllerKey: controllerDiKey, found: 0});
                 continue;
             }
 
-            console.log(controllerDiKey);
-
-            let controllerInstance = new controllerDiKey.constructor;
-
-            this.controllerMap.set(controllerNode, {controller: controllerInstance, controllerKey: controllerDiKey, found: 0});
+            this.controllerMap.set(controllerNode, {controller: new controllerDiKey.constructor, controllerKey: controllerDiKey, found: 0});
         }
 
         for (const [key, mapEntry] of this.controllerMap) {
-            if (mapEntry.found === 0) {
-                mapEntry.found = this.foundRounds;
-                if (mapEntry.controller instanceof AbstractController) {
-                    mapEntry.controller.env = new DomEnv([key]);
-                }
-                console.log( mapEntry);
 
-                // register  delegations
-                const delegations = Reflect.getMetadata("tg:on_delegate", mapEntry.controllerKey) || [];
-                for (const delegation of delegations) {
-                    const c : any = mapEntry.controller;
-                    if (mapEntry.controller instanceof AbstractController) {
-                        mapEntry.controller.env.onDelegated(delegation.type, delegation.query, (event: Event) => {
-                            const f = c[delegation.propertyKey].bind(c);
-                            f(new DomEnv([event.target as Element], c.env), event);
-                        });
-                    }
-                }
-                if (mapEntry.controller instanceof AbstractController) {
-                    mapEntry.controller.mount();
-                }
+            if (mapEntry.controllerKey instanceof AbstractJSXController) {
 
-                const handleResponse = (response : any) => {
-                    if (!response) {
-                        return;
-                    }
-                };
-
-                let response : any = mapEntry.controller.render();
-                if (!response) {
-                    console.log("response is undefined");
+                if (mapEntry.found === 0) {
+                    console.log("render jsx");
+                    ReactDOM.render(React.createElement(mapEntry.controllerKey.constructor as any), key);
+                } else if (mapEntry.found !== this.foundRounds) {
+                    console.log("unmount jsx");
+                    ReactDOM.unmountComponentAtNode(key);
+                    this.controllerMap.delete(key);
                 } else {
-                    handleResponse(response);
+                    // simply do nothing
                 }
-
 
                 continue;
             }
 
-            if (mapEntry.found !== this.foundRounds) {
-                if (mapEntry.controller instanceof AbstractController) {
+            if (mapEntry.controller instanceof AbstractController) {
+
+                if (mapEntry.found === 0) {
+                    mapEntry.found = this.foundRounds;
+
+
+                    // handle abstract controller
+                    mapEntry.controller.env = new DomEnv([key]);
+
+                    // register  delegations
+                    const delegations = Reflect.getMetadata("tg:on_delegate", mapEntry.controllerKey) || [];
+                    for (const delegation of delegations) {
+                        const c: any = mapEntry.controller;
+                        if (mapEntry.controller instanceof AbstractController) {
+                            mapEntry.controller.env.onDelegated(delegation.type, delegation.query, (event: Event) => {
+                                const f = c[delegation.propertyKey].bind(c);
+                                f(new DomEnv([event.target as Element], c.env), event);
+                            });
+                        }
+                    }
+
+                    mapEntry.controller.mount();
+
+
+                    const handleResponse = (response: any) => {
+                        if (!response) {
+                            return;
+                        }
+                    };
+
+                    let response: any = mapEntry.controller.render();
+                    if (!response) {
+                        console.log("response is undefined");
+                    } else {
+                        handleResponse(response);
+                    }
+
+                } else if (mapEntry.found !== this.foundRounds) {
                     mapEntry.controller.unmount();
+
+                    this.controllerMap.delete(key);
+                    continue;
                 }
-                this.controllerMap.delete(key);
+
                 continue;
             }
 
-            // noting to do, node is in sync.
+
+
+
         }
+
+
+// noting to do, node is in sync.
     }
 }
