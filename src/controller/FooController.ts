@@ -1,6 +1,4 @@
 import {controller, onDelegated} from "../decorators";
-import {inject} from "inversify";
-import XService from "../service/xservice";
 import {AbstractController, DomEnv} from "../core/controller/AbstractController";
 
 declare var console: any;
@@ -11,10 +9,6 @@ export default class extends AbstractController {
     private level: number = 0;
     private node: Element;
     static counter: number = 0;
-
-    constructor(@inject(XService) xservice: XService) {
-        super();
-    }
 
     mount() {
         this.level = Number(this.env.firstNativeElement()!.getAttribute('data-level') || 0);

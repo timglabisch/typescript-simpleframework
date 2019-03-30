@@ -1,4 +1,3 @@
-import {injectable} from "inversify";
 import * as ReactDOM from "react-dom";
 import * as React from "react";
 
@@ -151,7 +150,6 @@ class DomEnv {
 
 type renderResult = void | JSX.Element | Element;
 
-@injectable()
 abstract class AbstractController {
 
     env: DomEnv;

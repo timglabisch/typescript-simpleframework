@@ -1,5 +1,3 @@
-import {Container} from "inversify";
-import {buildProviderModule} from "inversify-binding-decorators";
 import {AbstractController, DomEnv} from "./controller/AbstractController";
 import AbstractJSXController from "./controller/AbstractJSXController";
 import * as ReactDOM from "react-dom";
@@ -11,7 +9,6 @@ declare var window: Window;
 
 export class App {
 
-    private container: Container = new Container();
     private routingMap: Map<string, any> = new Map();
     private controllerMap: Map<Element, { controller: AbstractController | AbstractJSXController<any>, controllerKey: any, found: number }> = new Map();
     private foundRounds: number = 1;
@@ -20,10 +17,8 @@ export class App {
 
     public run() {
 
-        this.container.load(buildProviderModule());
-
         let routingMetadata = Reflect.getMetadata(
-            "tg:routing",
+            "tg:controller",
             Reflect
         );
 
@@ -66,12 +61,19 @@ export class App {
 
             let controllerDiKey = this.routingMap.get(controllerName);
 
+            if (typeof controllerDiKey == "undefined") {
+                console.log("warning, controller '" + controllerName + "' is undefined");
+                continue;
+            }
+
             if (controllerDiKey instanceof AbstractJSXController) {
                 ReactDOM.render(React.createElement(controllerDiKey.constructor as any), controllerNode);
                 continue;
             }
 
-            let controllerInstance = this.container.get<AbstractController | AbstractJSXController<any>>(controllerDiKey);
+            console.log(controllerDiKey);
+
+            let controllerInstance = new controllerDiKey.constructor;
 
             this.controllerMap.set(controllerNode, {controller: controllerInstance, controllerKey: controllerDiKey, found: 0});
         }

@@ -8,7 +8,7 @@ declare var console: any;
 export default class extends AbstractJSXController<any> {
 
     init() {
-        this.state = {
+        return {
             clicks: 0
         }
     }

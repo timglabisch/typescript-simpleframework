@@ -1,12 +1,3 @@
-import {fluentProvide} from "inversify-binding-decorators";
-import {decorate, injectable, interfaces} from "inversify";
-
-const service = (identifier: any) => {
-    return fluentProvide(identifier)
-        .inSingletonScope()
-        .done();
-};
-
 interface RouteArgs {
     name: string | undefined
 }
@@ -15,26 +6,6 @@ const controller = (routeArgs : RouteArgs) => {
 
     return function (target: any) {
 
-        decorate(injectable(), target);
-
-        // provide metadata
-        const currentMetadata = {
-            constraint: (bind: interfaces.Bind, bindTarget: any) => bind(target.prototype).to(bindTarget),
-            implementationType: target
-        };
-
-        const previousMetadata = Reflect.getMetadata(
-            "inversify-binding-decorators:provide",
-            Reflect
-        ) || [];
-
-        Reflect.defineMetadata(
-            "inversify-binding-decorators:provide",
-            [currentMetadata, ...previousMetadata],
-            Reflect
-        );
-
-
         // routing
         const currentRouting = {
             routeArgs,
@@ -42,12 +13,12 @@ const controller = (routeArgs : RouteArgs) => {
         };
 
         const previousRouting = Reflect.getMetadata(
-            "tg:routing",
+            "tg:controller",
             Reflect
         ) || [];
 
         Reflect.defineMetadata(
-            "tg:routing",
+            "tg:controller",
             [currentRouting, ...previousRouting],
             Reflect
         );
@@ -72,4 +43,4 @@ const onDelegated = (type : string, query : string) => {
 }
 
 
-export {service, controller, RouteArgs, onDelegated}
+export {controller, RouteArgs, onDelegated}

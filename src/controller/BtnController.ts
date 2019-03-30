@@ -1,6 +1,4 @@
 import {controller, onDelegated} from "../decorators";
-import {inject} from "inversify";
-import XService from "../service/xservice";
 import {AbstractController, DomEnv} from "../core/controller/AbstractController";
 
 declare var console: any;

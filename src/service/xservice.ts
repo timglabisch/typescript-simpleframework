@@ -1,13 +1,7 @@
-import {service} from "../decorators";
-
 declare var console: any;
 
-
-@service(XService)
-class XService {
+export default new class {
     constructor() {
         console.log("foo");
     }
-}
-
-export default XService;
+};

@@ -4,11 +4,14 @@ export default abstract class<S> extends React.Component<{}, S> {
     constructor(props: {}, context: S) {
         super(props, context);
 
-        this.init()
+        this.init();
+        const initState = this.init();
+        if (initState) {
+            this.state = initState;
+        }
     }
 
-    init() {
-
+    init(): Readonly<S> | void {
     }
-
 }
+
