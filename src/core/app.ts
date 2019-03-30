@@ -1,6 +1,9 @@
 import {Container} from "inversify";
 import {buildProviderModule} from "inversify-binding-decorators";
 import {AbstractController, DomEnv} from "./controller/AbstractController";
+import AbstractJSXController from "./controller/AbstractJSXController";
+import * as ReactDOM from "react-dom";
+import * as React from "react";
 
 declare var console: any;
 declare var window: Window;
@@ -10,7 +13,7 @@ export class App {
 
     private container: Container = new Container();
     private routingMap: Map<string, any> = new Map();
-    private controllerMap: Map<Element, { controller: AbstractController, controllerKey: any, found: number }> = new Map();
+    private controllerMap: Map<Element, { controller: AbstractController | AbstractJSXController<any>, controllerKey: any, found: number }> = new Map();
     private foundRounds: number = 1;
 
     // todo, managed controllers sammeln...
@@ -63,7 +66,12 @@ export class App {
 
             let controllerDiKey = this.routingMap.get(controllerName);
 
-            let controllerInstance = this.container.get<AbstractController>(controllerDiKey);
+            if (controllerDiKey instanceof AbstractJSXController) {
+                ReactDOM.render(React.createElement(controllerDiKey.constructor as any), controllerNode);
+                continue;
+            }
+
+            let controllerInstance = this.container.get<AbstractController | AbstractJSXController<any>>(controllerDiKey);
 
             this.controllerMap.set(controllerNode, {controller: controllerInstance, controllerKey: controllerDiKey, found: 0});
         }
@@ -71,40 +79,35 @@ export class App {
         for (const [key, mapEntry] of this.controllerMap) {
             if (mapEntry.found === 0) {
                 mapEntry.found = this.foundRounds;
-                mapEntry.controller.env = new DomEnv([key]);
+                if (mapEntry.controller instanceof AbstractController) {
+                    mapEntry.controller.env = new DomEnv([key]);
+                }
                 console.log( mapEntry);
 
                 // register  delegations
                 const delegations = Reflect.getMetadata("tg:on_delegate", mapEntry.controllerKey) || [];
                 for (const delegation of delegations) {
                     const c : any = mapEntry.controller;
-                    mapEntry.controller.env.onDelegated(delegation.type, delegation.query, (event : Event) => {
-                        const f = c[delegation.propertyKey].bind(c);
-                        f(new DomEnv([event.target as Element], c.env), event);
-                    });
+                    if (mapEntry.controller instanceof AbstractController) {
+                        mapEntry.controller.env.onDelegated(delegation.type, delegation.query, (event: Event) => {
+                            const f = c[delegation.propertyKey].bind(c);
+                            f(new DomEnv([event.target as Element], c.env), event);
+                        });
+                    }
                 }
-
-                mapEntry.controller.mount();
+                if (mapEntry.controller instanceof AbstractController) {
+                    mapEntry.controller.mount();
+                }
 
                 const handleResponse = (response : any) => {
                     if (!response) {
                         return;
                     }
-
-                    mapEntry.controller.env.jsx(response as JSX.Element);
-                    mapEntry.controller.jsx_node = response;
                 };
 
                 let response : any = mapEntry.controller.render();
                 if (!response) {
                     console.log("response is undefined");
-                } else if (response.hasOwnProperty('next')) {
-                    (async function () {
-                        for await (const item of response) {
-                            handleResponse(item);
-                        }
-                    })();
-
                 } else {
                     handleResponse(response);
                 }
@@ -114,7 +117,9 @@ export class App {
             }
 
             if (mapEntry.found !== this.foundRounds) {
-                mapEntry.controller.unmount();
+                if (mapEntry.controller instanceof AbstractController) {
+                    mapEntry.controller.unmount();
+                }
                 this.controllerMap.delete(key);
                 continue;
             }

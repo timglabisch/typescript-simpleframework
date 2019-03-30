@@ -1,8 +1,7 @@
 import "reflect-metadata";
 import "./controller/FooController"
 import "./controller/BtnController"
-import "./controller/JSXController"
-import "./controller/AsyncController"
+import "./controller/JsxController"
 import {App} from "./core/app";
 
 declare var console: any;
