@@ -92,6 +92,7 @@ export class App {
                     }
 
                     mapEntry.controller.env.jsx(response as JSX.Element);
+                    mapEntry.controller.jsx_node = response;
                 };
 
                 let response : any = mapEntry.controller.render();

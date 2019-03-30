@@ -114,7 +114,9 @@ class DomEnv {
             }
         }*/
 
-        ReactDOM.render(el, this.firstNativeElement())
+        ReactDOM.render(el, this.firstNativeElement(), () => {
+            console.log('...');
+        });
     }
 
     findOne(query: string): DomEnv {
@@ -154,13 +156,15 @@ abstract class AbstractController {
 
     env: DomEnv;
 
+    jsx_node: JSX.Element | null;
+
     public mount() {
 
     }
 
     reRender() {
         let jsx : any = this.render();
-        if (jsx) { // todo
+        if (jsx) {
             this.env.jsx(jsx);
         }
     }
